@@ -2437,6 +2437,38 @@ QString Vehicle::flightMode(void) const
     return _firmwarePlugin->flightMode(_base_mode, _custom_mode);
 }
 
+void Vehicle::setFlightModeParametrized(const QString& flightMode, float param1, float param2, float param3, float param4, float param5)
+{
+    qDebug() << "Received the following! " << flightMode << " " << param1 << " " << param2 << " " << param3 << " " << param4 << " " << param5;
+    if (vehicleType() == MAV_TYPE_CHARGING_STATION)
+    {
+        uint8_t     base_mode;
+        uint32_t    custom_mode;
+
+        if (_firmwarePlugin->setFlightMode(flightMode, &base_mode, &custom_mode)) {
+            // setFlightMode will only set MAV_MODE_FLAG_CUSTOM_MODE_ENABLED in base_mode, we need to move back in the existing
+            // states.
+            uint8_t newBaseMode = _base_mode & ~MAV_MODE_FLAG_DECODE_POSITION_CUSTOM_MODE;
+            newBaseMode |= base_mode;
+
+//            MAV_CMD_DO_SET_MODE
+            sendMavCommand(_defaultComponentId,
+                           MAV_CMD_DO_SET_MODE,
+                           true,                            // show errors
+                           newBaseMode,                     // Mode
+                           custom_mode,                     // Cusnom mode
+                           param1,                          // Custom submode
+                           param2,
+                           param3,
+                           param4,
+                           param5);
+        }
+    }
+    else
+        setFlightMode(flightMode);
+
+}
+
 void Vehicle::setFlightMode(const QString& flightMode)
 {
     uint8_t     base_mode;
@@ -2448,15 +2480,34 @@ void Vehicle::setFlightMode(const QString& flightMode)
         uint8_t newBaseMode = _base_mode & ~MAV_MODE_FLAG_DECODE_POSITION_CUSTOM_MODE;
         newBaseMode |= base_mode;
 
-        mavlink_message_t msg;
-        mavlink_msg_set_mode_pack_chan(_mavlink->getSystemId(),
-                                       _mavlink->getComponentId(),
-                                       priorityLink()->mavlinkChannel(),
-                                       &msg,
-                                       id(),
-                                       newBaseMode,
-                                       custom_mode);
-        sendMessageOnLink(priorityLink(), msg);
+        if (vehicleType() == MAV_TYPE_CHARGING_STATION)
+        {
+            qDebug() << "Sending status to dronopoint!";
+
+//            MAV_CMD_DO_SET_MODE
+            sendMavCommand(_defaultComponentId,
+                           MAV_CMD_DO_SET_MODE,
+                           true,                            // show errors
+                           newBaseMode,                     // Mode
+                           custom_mode,                     // Cusnom mode
+                           0.0,                            // Custom submode
+                           0.0,
+                           0.0,
+                           0.0,
+                           0.0);
+        }
+        else {
+            mavlink_message_t msg;
+            mavlink_msg_set_mode_pack_chan(_mavlink->getSystemId(),
+                                           _mavlink->getComponentId(),
+                                           priorityLink()->mavlinkChannel(),
+                                           &msg,
+                                           id(),
+                                           newBaseMode,
+                                           custom_mode);
+            sendMessageOnLink(priorityLink(), msg);
+        }
+
     } else {
         qWarning() << "FirmwarePlugin::setFlightMode failed, flightMode:" << flightMode;
     }
@@ -2994,6 +3045,7 @@ QString Vehicle::vehicleTypeName() const {
         { MAV_TYPE_VTOL_RESERVED5,  tr("VTOL reserved 5")},
         { MAV_TYPE_GIMBAL,          tr("Onboard gimbal")},
         { MAV_TYPE_ADSB,            tr("Onboard ADSB peripheral")},
+        { MAV_TYPE_CHARGING_STATION,tr("Charging station")}
     };
     return typeNames[_vehicleType];
 }

@@ -820,6 +820,8 @@ public:
     Q_INVOKABLE void processCameraProperty(float commandType, QString propertyName, float value);
     Q_INVOKABLE void sendPlan(QString planFile);
 
+    Q_INVOKABLE void setFlightModeParametrized(const QString& flightMode, float param1, float param2, float param3, float param4, float param5);
+
     /// Used to check if running current version is equal or higher than the one being compared.
     //  returns 1 if current > compare, 0 if current == compare, -1 if current < compare
     Q_INVOKABLE int versionCompare(QString& compare);

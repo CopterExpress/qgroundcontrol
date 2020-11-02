@@ -31,7 +31,7 @@ QStringList ChargingStationFirmwarePlugin::flightModes(Vehicle* vehicle)
     Q_UNUSED(vehicle);
 
     QStringList flightModes;
-    flightModes << tr("Open") << tr("Closed");
+    flightModes << tr("Open") << tr("Closed") << tr("Load drone") << tr("Unload drone") << tr("Get from user") << tr("Unload to user") << tr("Change battery") << tr("Reset") << tr("Service");
     return flightModes;
 }
 
@@ -43,6 +43,20 @@ bool ChargingStationFirmwarePlugin::setFlightMode(const QString& flightMode, uin
         *custom_mode = CUSTOM_MODE_OPEN;
     } else if (flightMode.compare(tr("Closed"), Qt::CaseInsensitive) == 0) {
         *custom_mode = CUSTOM_MODE_CLOSED;
+    } else if (flightMode.compare(tr("Load drone"), Qt::CaseInsensitive) == 0) {
+        *custom_mode = CUSTOM_MODE_LOADING_DRONE;
+    } else if (flightMode.compare(tr("Unload drone"), Qt::CaseInsensitive) == 0) {
+        *custom_mode = CUSTOM_MODE_UNLOADING_DRONE;
+    } else if (flightMode.compare(tr("Get from user"), Qt::CaseInsensitive) == 0) {
+        *custom_mode = CUSTOM_MODE_GETTING_FROM_USER;
+    } else if (flightMode.compare(tr("Unload to user"), Qt::CaseInsensitive) == 0) {
+        *custom_mode = CUSTOM_MODE_UNLOADING_TO_USER;
+    } else if (flightMode.compare(tr("Change battery"), Qt::CaseInsensitive) == 0) {
+        *custom_mode = CUSTOM_MODE_CHANGING_BATTERY;
+    } else if (flightMode.compare(tr("Reset"), Qt::CaseInsensitive) == 0) {
+        *custom_mode = CUSTOM_MODE_RESET;
+    } else if (flightMode.compare(tr("Service"), Qt::CaseInsensitive) == 0) {
+        *custom_mode = CUSTOM_MODE_SERVICE;
     } else {
         return false;
     }
@@ -54,14 +68,30 @@ QString ChargingStationFirmwarePlugin::flightMode(uint8_t base_mode, uint32_t cu
 {
     if (base_mode & MAV_MODE_FLAG_CUSTOM_MODE_ENABLED) {
         switch (custom_mode) {
-        case CUSTOM_MODE_OPEN:
-            return tr("Open");
-        case CUSTOM_MODE_OPENING:
-            return tr("Opening");
-        case CUSTOM_MODE_CLOSED:
-            return tr("Closed");
-        case CUSTOM_MODE_CLOSING:
-            return tr("Closing");
+            case CUSTOM_MODE_OPEN:
+                return tr("Open");
+            case CUSTOM_MODE_OPENING:
+                return tr("Opening");
+            case CUSTOM_MODE_CLOSED:
+                return tr("Closed");
+            case CUSTOM_MODE_CLOSING:
+                return tr("Closing");
+            case CUSTOM_MODE_LOADING_DRONE:
+                return tr("Loading drone");
+            case CUSTOM_MODE_UNLOADING_DRONE:
+                return tr("Unloading drone");
+            case CUSTOM_MODE_GETTING_FROM_USER:
+                return tr("Getting from user");
+            case CUSTOM_MODE_UNLOADING_TO_USER:
+                return tr("Unloading to user");
+            case CUSTOM_MODE_CHANGING_BATTERY:
+                return tr("Changing battery");
+            case CUSTOM_MODE_SERVICE:
+                return tr("Service");
+            case CUSTOM_MODE_ERROR:
+                return tr("Error");
+            case CUSTOM_MODE_STANDBY:
+                return tr("Standby");
         }
     } else {
         qWarning() << "Charging station mode without custom mode enabled";
