@@ -31,7 +31,7 @@ QStringList ChargingStationFirmwarePlugin::flightModes(Vehicle* vehicle)
     Q_UNUSED(vehicle);
 
     QStringList flightModes;
-    flightModes << tr("Open") << tr("Closed") << tr("Load drone") << tr("Unload drone") << tr("Get from user") << tr("Unload to user") << tr("Change battery") << tr("Reset") << tr("Service");
+    flightModes << tr("Stop") << tr("Open") << tr("Closed") << tr("Load drone") << tr("Unload drone") << tr("Get from user") << tr("Unload to user") << tr("Change battery") << tr("Reset") << tr("Service");
     return flightModes;
 }
 
@@ -57,6 +57,8 @@ bool ChargingStationFirmwarePlugin::setFlightMode(const QString& flightMode, uin
         *custom_mode = CUSTOM_MODE_RESET;
     } else if (flightMode.compare(tr("Service"), Qt::CaseInsensitive) == 0) {
         *custom_mode = CUSTOM_MODE_SERVICE;
+    } else if (flightMode.compare(tr("Stop"), Qt::CaseInsensitive) == 0) {
+        *custom_mode = CUSTOM_MODE_STOP;
     } else {
         return false;
     }

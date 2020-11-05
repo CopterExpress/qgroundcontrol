@@ -53,13 +53,15 @@ Item {
             Rectangle {
                 id: testRect
                 width: 200
-                height: 300
+                height: contentColumn.height * 1.1
                 radius: ScreenTools.defaultFontPixelHeight * 0.5
                 color:  qgcPal.window
                 border.color:   qgcPal.text
                 Column{
+                    id: contentColumn
                     width: parent.width * 0.9
                     anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.topMargin: height*0.1
                     ComboBox {
                         id: cbFlightMode
                         currentIndex: -1
@@ -77,10 +79,86 @@ Item {
                             }
                             currentIndex = find(activeVehicle.flightMode)
                         }
+                        onCurrentIndexChanged: {
+                            // Default labels
+                            p1Label.text = "Param1: "
+                            p2Label.text = "Param2: "
+                            p3Label.text = "Param3: "
+                            p4Label.text = "Param4: "
+                            p5Label.text = "Param5: "
+
+                            if (cbFlightModeModel.get(currentIndex).mode == "Load drone")
+                            {
+                                p1Label.text = "Payload cell: "
+                                p2Label.text = "Charging cell: "
+                            }
+                            else if (cbFlightModeModel.get(currentIndex).mode == "Service")
+                            {
+                                p1Label.text = "Command id: "
+                            }
                         }
+                    }
+                    ComboBox {
+                        id: commandSelector
+                        currentIndex: -1
+                        displayText: currentIndex === -1 ? "Choose command..." : currentText
+                        visible: cbFlightMode.currentIndex == 9
+                        model: ListModel {
+                            id: commandSelectorModel
+                            ListElement { command: "LOCK_RELEASE" }
+                            ListElement { command: "LOCK_LOCK" }
+                            ListElement { command: "LOCK_STOP" }
+                            ListElement { command: "OPEN_TOP_HATCH" }
+                            ListElement { command: "CLOSE_TOP_HATCH" }
+                            ListElement { command: "GOTO_CELL" }
+                            ListElement { command: "LOAD_CHARGING_CELL" }
+                            ListElement { command: "UNLOAD_CHARGING_CELL" }
+                            ListElement { command: "LOAD_PAYLOAD_CELL" }
+                            ListElement { command: "UNLOAD_PAYLOAD_CELL" }
+                            ListElement { command: "GET_FROM_USER" }
+                            ListElement { command: "UNLOAD_TO_USER" }
+                            ListElement { command: "STOP" }
+                            ListElement { command: "GET_PAYLOAD_FROM_DRONE" }
+                            ListElement { command: "INSERT_PAYLOAD_INTO_DRONE" }
+                            ListElement { command: "LOCK_PAYLOAD" }
+                            ListElement { command: "RELEASE_PAYLOAD" }
+                            ListElement { command: "LOCK_CHARGING_CELL_LOCK" }
+                            ListElement { command: "RELEASE_CHARGING_CELL_LOCK" }
+                            ListElement { command: "LOCK_TOP_HATCH_LOCK" }
+                            ListElement { command: "RELEASE_TOP_HATCH_LOCK" }
+                            ListElement { command: "OPEN_BOTTOM_HATCH" }
+                            ListElement { command: "CLOSE_BOTTOM_HATCH" }
+                            ListElement { command: "LOCK_USER_CELL_LOCK" }
+                            ListElement { command: "RELEASE_USER_CELL_LOCK" }
+                            ListElement { command: "GOTO_CHARGING_CELL" }
+                        }
+                        width: parent.width
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        onCurrentIndexChanged: {
+                            param1Box.text = currentIndex
+                            p2Label.text = "Param2: "
+                            p3Label.text = "Param3: "
+                            p4Label.text = "Param4: "
+                            p5Label.text = "Param5: "
+                            if (commandSelectorModel.get(currentIndex).command == "GOTO_CELL")
+                            {
+                                p2Label.text = "X: "
+                                p3Label.text = "Y: "
+                                p4Label.text = "Z: "
+                            }
+                            else if (commandSelectorModel.get(currentIndex).command == "GOTO_CHARGING_CELL")
+                            {
+                                p2Label.text = "Xkr: "
+                                p3Label.text = "Y: "
+                                p4Label.text = "Z: "
+                            }
+                        }
+
+                    }
                     Row {
                         width: parent.width
                         QGCLabel {
+                            id: p1Label
                             text: qsTr("Param1: ")
                         }
                         TextField {
@@ -88,9 +166,10 @@ Item {
                             text: modeParam1
                             width: parent.width * 0.5
                             anchors.verticalCenter: parent.verticalCenter
+
                             inputMethodHints: Qt.ImhDigitsOnly
                             validator: IntValidator {
-                                bottom: -32768
+                                bottom: 0
                                 top: 32768
                             }
                             onAccepted: {
@@ -101,6 +180,7 @@ Item {
                     Row {
                         width: parent.width
                         QGCLabel {
+                            id: p2Label
                             text: qsTr("Param2: ")
                         }
                         TextField {
@@ -110,7 +190,7 @@ Item {
                             anchors.verticalCenter: parent.verticalCenter
                             inputMethodHints: Qt.ImhDigitsOnly
                             validator: IntValidator {
-                                bottom: -32768
+                                bottom: 0
                                 top: 32768
                             }
                             onAccepted: {
@@ -121,6 +201,7 @@ Item {
                     Row {
                         width: parent.width
                         QGCLabel {
+                            id: p3Label
                             text: qsTr("Param3: ")
                         }
                         TextField {
@@ -130,7 +211,7 @@ Item {
                             anchors.verticalCenter: parent.verticalCenter
                             inputMethodHints: Qt.ImhDigitsOnly
                             validator: IntValidator {
-                                bottom: -32768
+                                bottom: 0
                                 top: 32768
                             }
                             onAccepted: {
@@ -141,6 +222,7 @@ Item {
                     Row {
                         width: parent.width
                         QGCLabel {
+                            id: p4Label
                             text: qsTr("Param4: ")
                         }
                         TextField {
@@ -150,7 +232,7 @@ Item {
                             anchors.verticalCenter: parent.verticalCenter
                             inputMethodHints: Qt.ImhDigitsOnly
                             validator: IntValidator {
-                                bottom: -32768
+                                bottom: 0
                                 top: 32768
                             }
                             onAccepted: {
@@ -161,6 +243,7 @@ Item {
                     Row {
                         width: parent.width
                         QGCLabel {
+                            id: p5Label
                             text: qsTr("Param5: ")
                         }
                         TextField {
@@ -170,7 +253,7 @@ Item {
                             anchors.verticalCenter: parent.verticalCenter
                             inputMethodHints: Qt.ImhDigitsOnly
                             validator: IntValidator {
-                                bottom: -32768
+                                bottom: 0
                                 top: 32768
                             }
                             onAccepted: {
