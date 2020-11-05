@@ -17,6 +17,7 @@
 #define CUSTOM_MODE_RESET 11
 #define CUSTOM_MODE_STANDBY 12
 #define CUSTOM_MODE_ERROR 13
+#define CUSTOM_MODE_STOP 14
 
 
 class ChargingStationFactGroup : public FactGroup
